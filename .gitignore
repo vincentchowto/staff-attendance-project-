@@ -1,160 +1,60 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+(CLICK ME)Main_IT_Staff_Attendance.py
 
-# C extensions
-*.so
+import pandas as pd
+import os
+import tkinter
+import numpy as np
+from tkinter import filedialog
+from pandas import ExelWriter
+from pandas import DataFrame
+from collections import DataFrame
+from functools import reduce
+from decimal import Decimal
+import datetime
+from datetime impoert timedelta
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+#import the dataframe from the 3 functions
+from IT_STAFF_Attendance_Door_Access_Function import dfda
+from IF_STAFF_Attendance_SSLVPN_Function import dfvpn
+from IT_STAFF_Attendance_VDILog_Function import dfvdi
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+#Combining the processed raw date into a single dataframe
+dfinprocess=dfda.append(dfvpn, ignore_index=True)
+dfinprocess=dfinprocess.append(dfvdi,ignore_index=True)
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+#Converting the format of Duration
+dfinprocess['Duration']=pd.to_datetime(dfinprocess["Duration"]).dt.strftime("%H:%M:%S")
+dfinprocess['Duration']=pd.to_datetime(dfinprocess["Duration"]).dt.strftime("$H:%M")
+dfinprocess['Duration']=dfinprocess["Duration"].astypr(str)
+Values＝dfinprocess['Duration'].fillna('00:00').str.split(':',expand=True)astype(int)
+factors=np.array([60,1])
+dfinprocess["Duration2"]=(Values*factors).sum(1)
+dfinprocess["Duration2"]=dfinprocess["Duration2"].div(60)
+dfinprocess['Duration2']=dfinprocess['Duration2'].round(decimals=2)
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
+dfinprocess.drop(['Duration'],inplace=True,axis=1)
+dfinprocess = dfinprocess.rename(columns={'Duration2':'Duration')
 
-# Translations
-*.mo
-*.pot
+dfinprocess['Date']=pd.to_datetime(dfinprocess['Start Time']).dt.strtime("%Y/%m/%d")
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+#Reformatting the colunmn of Start Time, End Time and Date
+dfinprocess['Start Time']=pd.to_datetime(dfinprocess['Start Time'],format='%Y%m%d%H%M%S').dt.strftime('%Y-%m-%d %H:%M:%S')
+dfinprocess['End Time']=pd.to_datetime(dfinprocess['End Time'],format='%Y%m%d%H%M%S').dt.strftime('%Y-%m-%d %H:%M:%S')
+dfinprocess['Date']=pd.to_datetime(dfinprocess['Date'],format='%Y%m%d%H%M%S').dt.strftime('%Y-%m-%d')
+dfinprocess=dfprocess[['Staff ID','User Name'.'IsPerm?','IT Team','Channel','Start Time','End Time','Duration','Department','Date']]
+print(dfprocess)
 
-# Flask stuff:
-instance/
-.webassets-cache
+#Save as Excel File and giving time format to the column of Start Time, End Time and Date
+writer=pd.ExcelWriter('consolidated_Staff_Attendance_data_IT.xlsx')
+dfinprocess.to_excel(writer,'consolidated_data_IT')
 
-# Scrapy stuff:
-.scrapy
+workbook=writer.book
+worksheet=write.sheets['consolidated_data_IT')
 
-# Sphinx documentation
-docs/_build/
+format1=workbook.add._format(['num_format';'yyyy-mm-dd hh:mm:ss'})
+format2=workbook.add_format('num_format':'yyyy-mm-dd'})
 
-# PyBuilder
-.pybuilder/
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
-
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#pdm.lock
-#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
-#   in version control.
-#   https://pdm.fming.dev/#use-with-ide
-.pdm.toml
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
+worksheet.set_column('G:G, None, format1)
+worksheet.set_column('H:H, None, format1)
+worksheet.set_column('K:K', None, format2)]
+writer.save()
